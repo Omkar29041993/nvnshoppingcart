@@ -1,0 +1,15 @@
+node()
+{
+    stage "Checkout Code"
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/Omkar29041993/nvnshoppingcart.git']]])
+    
+    stage "build docker image"
+        sh 'cd /var/lib/jenkins/workspace/DeployViaAnsiblePipeline'
+        sh 'mvn clean install'
+        
+    stage "deploy docker image"
+        sh 'sudo mkdir -p /usr/share/maven3/nvnshoppingcart'
+        sh 'sudo mkdir -p /usr/share/maven3/nvnshoppingcart/target'
+        sh 'sudo cp **/*.war /usr/share/maven3/nvnshoppingcart/target/nvnshoppingcart.war'
+        sh 'sudo ansible-playbook /opt/devops/ansible/e2eproject/deploy.yml -vvv'
+}
